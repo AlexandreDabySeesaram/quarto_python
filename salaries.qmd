@@ -58,7 +58,11 @@ Après deux ans de post doc on rentre donc avec 26 mois d'ancienneté dans l'éc
 ```{python} 
 #| code-fold: true
 
-years_mcf_default = np.array([0, 8, 12-8, 34, 34, 42, 34, 34])/12
+years_mcf_default = np.array([0, 8, 12-8, 34 - (12-8), 34, 42, 34, 34])/12
+
+# On ajoute 2 ans (24 mois) -> ancienneté de 96 mois. On arrive ecehlon 4 avec 16 mois d'ancienneté, il reste 34-16 = 18 mois à faire
+years_mcf_X_ENS = np.array([0, 1, 0.5, 2.833, 3.5, 2.833, 2.833])
+
 
 ```
 
@@ -67,6 +71,7 @@ years_mcf_default = np.array([0, 8, 12-8, 34, 34, 42, 34, 34])/12
 La RIPEC C1 doit atteindre 6400 euros en 2027 ([source](https://www.enseignementsup-recherche.gouv.fr/fr/bo/23/Hebdo6/ESRH2302327X.htm)). Avec les retards de vote de budget, la RIPEC d'une année N peut être effective en juillet de cette année avec effet retroactif comme cela a eu lieu en 2025 ([source](https://www.sgen-cfdt.fr/actu/revalorisation-du-ripec-c1-enfin/)). On peut donc choisir avance de compter la RIPEC 2026 pour l'année en cours ou choisir de ne compter pour 2026 que la RIPEC 2025. 
 
 On étudie donc trois scenarii
+
 * La RIPEC est figée à sa valeur de 2025 (contre la LPR)
 * La RIPEC reste à sa valeur 2025 en 2026
 * La RIPEC suit la LPR et on interpole entre les valeurs 2025 et 2027 pour 2026
@@ -80,10 +85,16 @@ RIPEC_2026 = (6400+4800)/2
 RIPEC_2025 = 4800
   
 indice_majore_mcf = np.array([589, 648,648, 698, 744, 774, 808, 835])
+indice_majore_mcf_X_ENS = np.array([648, 648, 698, 744, 774, 808, 835])
+
 
 RIPEC_2026_2027 = np.array([RIPEC_2026]*2 + [RIPEC_2027] * 6)/12  
 RIPEC_2025_2027 = np.array([RIPEC_2025]*2 + [RIPEC_2027] * 6)/12  
 RIPEC_2025 = np.array([RIPEC_2025] * 8)/12  
+
+
+RIPEC_LPR_X_ENS = np.array([RIPEC_2026] + [RIPEC_2027] * 6)/12   # ENS avec 3+1 ans pour these 2 ans pour ens et 2 ans PoD
+
 
 RIPEC_ENSTA = 2800/12
 
@@ -91,9 +102,8 @@ RIPEC_ENSTA = 2800/12
 
 
 
-## Calcul
+## Pour l'ENSTA
 
-Pour l'ENSTA
 
 * On part de l'IM 678
 * RIPEC C1 = 2800 euros (2026)
@@ -119,16 +129,22 @@ augmentation_tri = 40
 number_years = int(np.floor(nombre_annees/3))
 jump_indice = augmentation_tri
 start_indice_default = 678
+start_indice_ENS = 710
 
 indice_majore_ENSTA_default = np.repeat(
     [start_indice_default + i * jump_indice for i in range(number_years)],
     3
 )
 
+indice_majore_ENSTA_ENS = np.repeat(
+    [start_indice_ENS + i * jump_indice for i in range(number_years)],
+    3
+)
 
 years_ENSTA = np.array([0] + [1] * int(number_years-1))
 
 
+Salaire_mcf_Pal_X_ENS = indice_majore_mcf_X_ENS * valeur_point * res_palaiseau
 Salaire_mcf_Pal = indice_majore_mcf * valeur_point * res_palaiseau
 Salaire_mcf_Brest = indice_majore_mcf * valeur_point * res_Brest
 
@@ -144,18 +160,29 @@ Salaire_mcf_Brest_2025_2027 = Salaire_mcf_Brest + RIPEC_2025_2027
 Salaire_mcf_Pal_2026_2027 = Salaire_mcf_Pal + RIPEC_2026_2027
 Salaire_mcf_Brest_2026_2027 = Salaire_mcf_Brest + RIPEC_2026_2027
 
+### LPR Respectée X-ENS (+24 mois d'ancienneté à la prise de poste)
+Salaire_mcf_Pal_X_ENS = Salaire_mcf_Pal_X_ENS + RIPEC_LPR_X_ENS
+
+
 ### ENSTA
 Salaire_ENSTA_Pal = indice_majore_ENSTA_default * valeur_point * res_palaiseau
 Salaire_ENSTA_Brest = indice_majore_ENSTA_default * valeur_point * res_Brest
 
+Salaire_ENSTA_Pal_ENS = indice_majore_ENSTA_ENS * valeur_point * res_palaiseau
+Salaire_ENSTA_Brest_ENS = indice_majore_ENSTA_ENS * valeur_point * res_Brest
+
+
 Salaire_ENSTA_Pal_prime = Salaire_ENSTA_Pal + RIPEC_ENSTA
 Salaire_ENSTA_Brest_prime = Salaire_ENSTA_Brest + RIPEC_ENSTA
 
+Salaire_ENSTA_Pal_ENS_prime = Salaire_ENSTA_Pal_ENS + RIPEC_ENSTA
+Salaire_ENSTA_Brest_ENS_prime = Salaire_ENSTA_Brest_ENS + RIPEC_ENSTA
 
 ```
 
 ### Plots
 
+On considère un recrutement à 28 ans.
 ```{python}
 #| code-fold: true
 
@@ -163,16 +190,20 @@ Salaire_ENSTA_Brest_prime = Salaire_ENSTA_Brest + RIPEC_ENSTA
 import plotly.graph_objects as go
 fig = go.Figure()
 
-fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Brest_prime, visible='legendonly', mode='lines+markers', name=f'ENSTA Brest', line=dict(color='#1f77b4', dash='dash', shape='hv'), marker=dict(symbol='cross')))
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Brest_prime, visible='legendonly', mode='lines+markers', name=f'ENSTA Brest (IM 678)', line=dict(color='#1f77b4', dash='dash', shape='hv'), marker=dict(symbol='cross')))
 
-fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Pal_prime, mode='lines+markers', name=f'ENSTA Palaiseau', line=dict(color='#1f77b4', shape='hv'), marker=dict(symbol='circle')))
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Pal_prime, mode='lines+markers', name=f'ENSTA Palaiseau (IM 678)', line=dict(color='#1f77b4', shape='hv'), marker=dict(symbol='circle')))
+
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Brest_ENS_prime, visible='legendonly', mode='lines+markers', name=f'ENSTA Brest (IM 710)', line=dict(color='#5dade2', dash='dash', shape='hv'), marker=dict(symbol='cross')))
+
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Pal_ENS_prime, visible='legendonly', mode='lines+markers', name=f'ENSTA Palaiseau (IM 710)', line=dict(color='#5dade2', shape='hv'), marker=dict(symbol='circle')))
 
 
 fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Pal_2025, mode='lines+markers', name='MCF Palaiseau RIPEC 2025 figée', line=dict(color='#ffbb78', dash='dash', shape='hv'), marker=dict(symbol='circle')))
 
 fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Brest_2025, visible='legendonly', mode='lines+markers', name='MCF Brest 2025 figée', line=dict(color='#ffbb78', dash='dash', shape='hv'), marker=dict(symbol='cross')))
 
-fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Pal_2025_2027, mode='lines+markers', name='MCF Palaiseau RIPEC 2025 pour 2026 puis 2027', line=dict(color='#ff7f0e', dash='dash', shape='hv'), marker=dict(symbol='circle')))
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Pal_2025_2027, visible='legendonly', mode='lines+markers', name='MCF Palaiseau RIPEC 2025 pour 2026 puis 2027', line=dict(color='#ff7f0e', dash='dash', shape='hv'), marker=dict(symbol='circle')))
 
 fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Brest_2025_2027, visible='legendonly', mode='lines+markers', name='MCF Brest RIPEC 2025 pour 2026 puis 2027', line=dict(color='#ff7f0e', dash='dash', shape='hv'), marker=dict(symbol='cross')))
 
@@ -181,8 +212,11 @@ fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Pal
 fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Brest_2026_2027, visible='legendonly', mode='lines+markers', name='MCF Brest RIPEC LPR', line=dict(color='#d95f02', shape='hv'), marker=dict(symbol='cross')))
 
 
+#X-ENS
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_X_ENS), y=12*Salaire_mcf_Pal_X_ENS, visible='legendonly', mode='lines+markers', name='MCF X-ENS Palaiseau RIPEC LPR', line=dict(color='#52be80', shape='hv'), marker=dict(symbol='circle')))
+
 fig.add_hline(
-    y=2*SMIC, 
+    y=2*SMIC*12, 
     line_width=2, 
     line_dash="dash", 
     line_color="black",
