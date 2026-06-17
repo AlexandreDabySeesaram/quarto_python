@@ -148,7 +148,7 @@ Salaire_mcf_Brest_2026_2027 = Salaire_mcf_Brest + RIPEC_2026_2027
 Salaire_ENSTA_Pal = indice_majore_ENSTA_default * valeur_point * res_palaiseau
 Salaire_ENSTA_Brest = indice_majore_ENSTA_default * valeur_point * res_Brest
 
-12*Salaire_ENSTA_Pal_prime = Salaire_ENSTA_Pal + RIPEC_ENSTA
+Salaire_ENSTA_Pal_prime = Salaire_ENSTA_Pal + RIPEC_ENSTA
 Salaire_ENSTA_Brest_prime = Salaire_ENSTA_Brest + RIPEC_ENSTA
 
 
@@ -191,7 +191,7 @@ fig.add_hline(
 )
 
 ############## Plotly
-fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération mensuelle (€)', template='plotly_white', legend=dict(title='Catégorie'), font=dict(size=12), width=1000, height=600)
+fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Catégorie'), font=dict(size=12), width=1000, height=600)
 fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
 fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
 # mo.ui.plotly(fig)
