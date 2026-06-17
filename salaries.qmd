@@ -1,5 +1,5 @@
 ---
-# title: Marimo-quarto
+title: Évolution de carrière
 toc: false
 format:
   html:
@@ -20,6 +20,7 @@ jupyter: jax-env-kernel
 
 
 
+
 ```{python} 
 #| code-fold: true
 import numpy as np
@@ -33,7 +34,9 @@ valeur_point = valeur_point_default
 ```
 
 
+
 ## Calcul de l'ancienneté
+
 On considère un recrutement après 2 années de postdoc
 
 Dans la LPR, 
@@ -44,7 +47,7 @@ Dans la LPR,
 
 L'ancienneté est donc de 72 mois. 
 
-Dans le MESR [source](https://www.emploi-collectivites.fr/grille-indiciaire-etat-maitre-conferences/1/5141.htm), 
+Dans le MESR ([source](https://www.emploi-collectivites.fr/grille-indiciaire-etat-maitre-conferences/1/5141.htm)), 
 
 * Échelon 1 dure 12 mois
 * Échelon 2 dure 34 mois
@@ -183,6 +186,15 @@ Salaire_ENSTA_Brest_ENS_prime = Salaire_ENSTA_Brest_ENS + RIPEC_ENSTA
 ### Plots
 
 On considère un recrutement à 28 ans.
+
+On étudie
+
+* [■]{.blue} Les différents scénarii de RIPEC pris en compte pour la simulation des carrières dans le MESR (bien que la C1 après 2027 soit connue)
+* [■]{.green} Une carrière dans l'ESR pour un ou une EC ayant été fonctionnaire stagiaire pendant ses études (avec pour seul scénario RIPEC étudié le respect de la LPR)
+* [■]{.orange} Deux possibilités d'indice initial (IM 678 et IM 710) à l'ENSTA
+
+Pour chaque scénario, sont affichées les courbes pour une indemnité de résidence brestoise et palaisienne. 
+
 ```{python}
 #| code-fold: true
 
