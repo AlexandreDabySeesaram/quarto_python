@@ -107,14 +107,14 @@ RIPEC_ENSTA = 2800/12
 
 * On part de l'IM 678
 * RIPEC C1 = 2800 euros (2026)
-* 40 points d'augmentation tous les 3 ans
+* 45 points d'augmentation tous les 3 ans
 
 
 ```{python} 
 #| code-fold: true
 
 nombre_annees = 55
-augmentation_tri = 40
+augmentation_tri = 45
 
 ```
 
