@@ -219,12 +219,12 @@ fig.add_hline(
     line_width=2, 
     line_dash="dash", 
     line_color="black",
-    annotation_text="2x SMIC", # Optional label
-    annotation_position="top right" # Optional positioning (e.g., "top left", "bottom right")
+    annotation_text="2x SMIC", 
+    annotation_position="top right" 
 )
 
 ############## Plotly
-fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Catégorie'), font=dict(size=12), width=1000, height=600)
+fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Catégories'), font=dict(size=12), width=1000, height=600)
 fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
 fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
 # mo.ui.plotly(fig)
