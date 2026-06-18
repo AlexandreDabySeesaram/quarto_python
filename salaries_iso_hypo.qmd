@@ -1,0 +1,244 @@
+---
+title: Évolution de carrière
+toc: false
+format:
+  html:
+    page-layout: full
+jupyter: jax-env-kernel
+---
+
+
+
+## Hypothèses communes 
+
+* Le point d'indice vaut $4.92278$
+* Le SMIC est à 1867 euros bruts
+* L'indemnité de résidence vaut
+    * 3% à Palaiseau
+    * 1% à Brest
+* Le salaire d'un mcf ne peut pas être inférieur à 2x SMIC
+* On considère la RIPEC C1 dans sa version 2025
+
+
+```{python} 
+#| code-fold: true
+import numpy as np
+valeur_point_default = 4.92278 
+SMIC = 1867
+
+res_Brest = 1.01
+res_palaiseau = 1.03
+valeur_point = valeur_point_default
+
+```
+
+
+
+## Calcul de l'ancienneté
+
+On considère un recrutement après 2 années de postdoc
+
+Dans la LPR, 
+
+* les années de thèse comptent pour 3 ans (36 mois),
+* le docotat ajoute une année de bonification (12 mois)
+* et chaque année de postdoc compte (ici 24 mois).
+
+L'ancienneté est donc de 72 mois. 
+
+Dans le MESR ([source](https://www.emploi-collectivites.fr/grille-indiciaire-etat-maitre-conferences/1/5141.htm)), 
+
+* Échelon 1 dure 12 mois
+* Échelon 2 dure 34 mois
+* Échelon 3 dure 34 mois
+* Échelon 4 dure 34 mois
+* Échelon 5 dure 34 mois
+
+Après deux ans de post doc on rentre donc avec 26 mois d'ancienneté dans l'échelon 3, dans lequel il reste 8 mois à faire. 
+
+
+```{python} 
+#| code-fold: true
+
+years_mcf_default = np.array([0, 8, 12-8, 34 - (12-8), 34, 42, 34, 34])/12
+
+
+
+
+```
+
+<!-- ## RIPEC
+
+La RIPEC C1 doit atteindre 6400 euros en 2027 ([source](https://www.enseignementsup-recherche.gouv.fr/fr/bo/23/Hebdo6/ESRH2302327X.htm)). Avec les retards de vote de budget, la RIPEC d'une année N peut être effective en juillet de cette année avec effet retroactif comme cela a eu lieu en 2025 ([source](https://www.sgen-cfdt.fr/actu/revalorisation-du-ripec-c1-enfin/)). On peut donc choisir avance de compter la RIPEC 2026 pour l'année en cours ou choisir de ne compter pour 2026 que la RIPEC 2025. 
+
+On étudie donc trois scenarii
+
+* La RIPEC est figée à sa valeur de 2025 (contre la LPR)
+* La RIPEC reste à sa valeur 2025 en 2026
+* La RIPEC suit la LPR et on interpole entre les valeurs 2025 et 2027 pour 2026 -->
+
+
+```{python} 
+#| code-fold: true
+
+RIPEC_2027 = 6400
+RIPEC_2026 = (6400+4800)/2
+RIPEC_2025 = 4800
+  
+indice_majore_mcf = np.array([589, 648,648, 698, 744, 774, 808, 835])
+
+RIPEC_2025 = np.array([RIPEC_2025] * 8)/12  
+
+RIPEC_ENSTA = 2000/12
+
+```
+
+
+
+## Pour l'ENSTA
+
+
+* On part de l'IM 698
+* RIPEC C1 = 2000 euros (2025)
+* 45 points d'augmentation tous les 3 ans
+
+
+```{python} 
+#| code-fold: true
+
+nombre_annees = 55
+augmentation_tri = 45
+
+```
+
+
+
+
+
+```{python} 
+#| code-fold: true
+
+
+number_years = int(np.floor(nombre_annees/3))
+jump_indice = augmentation_tri
+start_indice_default = 678
+start_indice_ENS = 710
+
+indice_majore_ENSTA_default = np.repeat(
+    [start_indice_default + i * jump_indice for i in range(number_years)],
+    3
+)
+
+
+years_ENSTA = np.array([0] + [1] * int(number_years-1))
+
+
+Salaire_mcf_Pal = indice_majore_mcf * valeur_point * res_palaiseau
+Salaire_mcf_Brest = indice_majore_mcf * valeur_point * res_Brest
+
+### 2025
+Salaire_mcf_Pal_2025 = Salaire_mcf_Pal + RIPEC_2025 
+Salaire_mcf_Brest_2025 = Salaire_mcf_Brest + RIPEC_2025
+
+
+
+### ENSTA
+Salaire_ENSTA_Pal = indice_majore_ENSTA_default * valeur_point * res_palaiseau
+Salaire_ENSTA_Brest = indice_majore_ENSTA_default * valeur_point * res_Brest
+
+Salaire_ENSTA_Pal_prime = Salaire_ENSTA_Pal + RIPEC_ENSTA
+Salaire_ENSTA_Brest_prime = Salaire_ENSTA_Brest + RIPEC_ENSTA
+
+
+```
+
+### Plots
+
+On considère un recrutement à 28 ans.
+
+#### Palaiseau 
+
+
+Indemnité de résidence de 3%
+
+```{python}
+#| code-fold: true
+
+
+import plotly.graph_objects as go
+fig = go.Figure()
+
+### IM 698
+
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Pal_prime, mode='lines+markers', name=f'ENSTA Palaiseau (IM 698)', line=dict(color='#d95f02', shape='hv'), marker=dict(symbol='circle')))
+
+
+
+### 2025 figee
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Pal_2025, mode='lines+markers', name='MCF Palaiseau RIPEC 2025 figée', line=dict(color='#1f77b4', dash='dash', shape='hv'), marker=dict(symbol='circle')))
+
+
+
+
+fig.add_hline(
+    y=2*SMIC*12, 
+    line_width=2, 
+    line_dash="dash", 
+    line_color="black",
+    annotation_text="2x SMIC", 
+    annotation_position="top right" 
+)
+
+############## Plotly
+fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Catégories'), font=dict(size=12), width=1000, height=600)
+fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+# mo.ui.plotly(fig)
+fig.show()
+
+```
+
+
+
+
+#### Brest
+
+Indemnité de résidence de 1%
+
+
+```{python}
+#| code-fold: true
+
+
+import plotly.graph_objects as go
+fig = go.Figure()
+
+### IM 698
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Brest_prime, visible='legendonly', mode='lines+markers', name=f'ENSTA Brest (IM 698)', line=dict(color='#d95f02', dash='dash', shape='hv'), marker=dict(symbol='cross')))
+
+
+
+
+### 2025 figee
+
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Brest_2025, visible='legendonly', mode='lines+markers', name='MCF Brest 2025 figée', line=dict(color='#1f77b4', dash='dash', shape='hv'), marker=dict(symbol='cross')))
+
+
+
+fig.add_hline(
+    y=2*SMIC*12, 
+    line_width=2, 
+    line_dash="dash", 
+    line_color="black",
+    annotation_text="2x SMIC", 
+    annotation_position="top right" 
+)
+
+############## Plotly
+fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Catégories'), font=dict(size=12), width=1000, height=600)
+fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+# mo.ui.plotly(fig)
+fig.show()
+
+```

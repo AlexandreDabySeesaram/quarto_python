@@ -20,6 +20,7 @@ format:
 here you'll find 
 
 * An [example](salaries.qmd)
+* An [example at iso-hypo](salaries_iso_hypo.qmd)
 
 
 
