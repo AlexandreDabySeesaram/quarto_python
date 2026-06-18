@@ -100,7 +100,9 @@ RIPEC_ENSTA_2026 = 2800/12
 
 
 * On part de l'IM 698
-* RIPEC C1 = 2000 euros (2025)
+* Deux options de RIPEC C1
+    * C1 2025 (2000 euros)
+    * C1 2026 (2800 euros)
 * 45 points d'augmentation tous les 3 ans
 
 
@@ -210,6 +212,9 @@ fig.show()
 
 ::: {.column width="29%"}
 
+:::: {style='margin-top: 15em;'}
+::::
+
 * Générales
     * Recrutement à 28 ans après 2 ans de postdoc
     * 3% d'indémenité de résidence à Palaiseau
@@ -277,6 +282,9 @@ fig.show()
 :::
 
 ::: {.column width="29%"}
+
+:::: {style='margin-top: 15em;'}
+::::
 
 ##### Hypothèses
 
@@ -354,6 +362,9 @@ fig.show()
 
 ::: {.column width="29%"}
 
+:::: {style='margin-top: 15em;'}
+::::
+
 ##### Hypothèses
 
 * Générales
@@ -414,6 +425,7 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
 fig.update_yaxes(range=[0, 80000])
 
 fig.show()
+# fig.write_image("graph.pdf")
 
 ```
 
@@ -421,6 +433,10 @@ fig.show()
 :::
 
 ::: {.column width="29%"}
+
+:::: {style='margin-top: 15em;'}
+::::
+
 ##### Hypothèses
 
 * Générales
