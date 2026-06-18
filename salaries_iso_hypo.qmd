@@ -89,7 +89,8 @@ indice_majore_mcf = np.array([589, 648,648, 698, 744, 774, 808, 835])
 
 RIPEC_2025 = np.array([RIPEC_2025] * 8)/12  
 
-RIPEC_ENSTA = 2000/12
+RIPEC_ENSTA_2025 = 2000/12
+RIPEC_ENSTA_2026 = 2800/12
 
 ```
 
@@ -146,8 +147,11 @@ Salaire_mcf_Brest_2025 = Salaire_mcf_Brest + RIPEC_2025
 Salaire_ENSTA_Pal = indice_majore_ENSTA_default * valeur_point * res_palaiseau
 Salaire_ENSTA_Brest = indice_majore_ENSTA_default * valeur_point * res_Brest
 
-Salaire_ENSTA_Pal_prime = Salaire_ENSTA_Pal + RIPEC_ENSTA
-Salaire_ENSTA_Brest_prime = Salaire_ENSTA_Brest + RIPEC_ENSTA
+Salaire_ENSTA_Pal_prime = Salaire_ENSTA_Pal + RIPEC_ENSTA_2025
+Salaire_ENSTA_Brest_prime = Salaire_ENSTA_Brest + RIPEC_ENSTA_2025
+
+Salaire_ENSTA_Pal_prime_2026 = Salaire_ENSTA_Pal + RIPEC_ENSTA_2026
+Salaire_ENSTA_Brest_prime_2026 = Salaire_ENSTA_Brest + RIPEC_ENSTA_2026
 
 
 ```
@@ -158,8 +162,9 @@ On considère un recrutement à 28 ans.
 
 #### Palaiseau 
 
+:::: {.columns}
 
-Indemnité de résidence de 3%
+::: {.column width="70%"}
 
 ```{python}
 #| code-fold: true
@@ -170,12 +175,12 @@ fig = go.Figure()
 
 ### IM 698
 
-fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Pal_prime, mode='lines+markers', name=f'ENSTA Palaiseau (IM 698)', line=dict(color='#d95f02', shape='hv'), marker=dict(symbol='circle')))
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Pal_prime, mode='lines+markers', name=f'ENSTA (IM 698)', line=dict(color='#d95f02', shape='hv'), marker=dict(symbol='circle')))
 
 
 
 ### 2025 figee
-fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Pal_2025, mode='lines+markers', name='MCF Palaiseau RIPEC 2025 figée', line=dict(color='#1f77b4', dash='dash', shape='hv'), marker=dict(symbol='circle')))
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Pal_2025, mode='lines+markers', name='MCF RIPEC 2025 figée', line=dict(color='#1f77b4', shape='hv'), marker=dict(symbol='circle')))
 
 
 
@@ -190,14 +195,178 @@ fig.add_hline(
 )
 
 ############## Plotly
-fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Catégories'), font=dict(size=12), width=1000, height=600)
+fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Légende'), font=dict(size=12), width=800, height=800)
 fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
 fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+fig.update_yaxes(range=[0, 80000])
+
 # mo.ui.plotly(fig)
 fig.show()
 
 ```
 
+
+:::
+
+::: {.column width="29%"}
+
+* Générales
+    * Recrutement à 28 ans après 2 ans de postdoc
+    * 3% d'indémenité de résidence à Palaiseau
+* MESR
+    * RIPEC 2025 (4800 euros)
+* ENSTA
+    * RIPEC 2025 (2000)
+
+:::
+
+::::
+
+Indemnité de résidence de 3%
+
+
+
+
+
+#### Brest
+
+:::: {.columns}
+
+::: {.column width="70%"}
+
+```{python}
+#| code-fold: true
+
+
+import plotly.graph_objects as go
+fig = go.Figure()
+
+### IM 698
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Brest_prime, mode='lines+markers', name=f'ENSTA (IM 698)', line=dict(color='#d95f02', shape='hv'), marker=dict(symbol='cross')))
+
+
+
+
+### 2025 figee
+
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Brest_2025, mode='lines+markers', name='MCF 2025 figée', line=dict(color='#1f77b4', shape='hv'), marker=dict(symbol='cross')))
+
+
+
+fig.add_hline(
+    y=2*SMIC*12, 
+    line_width=2, 
+    line_dash="dash", 
+    line_color="black",
+    annotation_text="2x SMIC", 
+    annotation_position="top right" 
+)
+
+############## Plotly
+fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Légende'), font=dict(size=12), width=800, height=800)
+fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+fig.update_yaxes(range=[0, 80000])
+
+# mo.ui.plotly(fig)
+fig.show()
+
+```
+
+
+:::
+
+::: {.column width="29%"}
+
+##### Hypothèses
+
+* Générales
+    * Recrutement à 28 ans après 2 ans de postdoc
+    * 1% d'indémenité de résidence à Brest
+* MESR
+    * RIPEC 2025 (4800 euros)
+* ENSTA
+    * RIPEC 2025 (2000)
+
+:::
+
+::::
+
+Indemnité de résidence de 1%
+
+
+
+
+### Plots d'un second scenario
+
+On peut aussi consiérer la RIPEC 2026 de l'ENSTA pour toute la carrière contre la RIPEC 2025 du MESR. 
+
+
+#### Palaiseau 
+
+
+Indemnité de résidence de 3%
+
+:::: {.columns}
+
+::: {.column width="70%"}
+
+```{python}
+#| code-fold: true
+
+
+import plotly.graph_objects as go
+fig = go.Figure()
+
+### IM 698
+
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Pal_prime_2026, mode='lines+markers', name=f'ENSTA (IM 698)', line=dict(color='#d95f02', shape='hv'), marker=dict(symbol='circle')))
+
+
+
+### 2025 figee
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Pal_2025, mode='lines+markers', name='MCF RIPEC 2025 figée', line=dict(color='#1f77b4', shape='hv'), marker=dict(symbol='circle')))
+
+
+
+
+fig.add_hline(
+    y=2*SMIC*12, 
+    line_width=2, 
+    line_dash="dash", 
+    line_color="black",
+    annotation_text="2x SMIC", 
+    annotation_position="top right" 
+)
+
+############## Plotly
+fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Légende'), font=dict(size=12), width=800, height=800)
+fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+fig.update_yaxes(range=[0, 80000])
+# mo.ui.plotly(fig)
+fig.show()
+
+```
+
+
+:::
+
+::: {.column width="29%"}
+
+##### Hypothèses
+
+* Générales
+    * Recrutement à 28 ans après 2 ans de postdoc
+    * 3% d'indémenité de résidence à Palaiseau
+* MESR
+    * RIPEC 2025 (4800 euros)
+* ENSTA
+    * RIPEC 2026 (2800)
+
+:::
+
+::::
 
 
 
@@ -205,6 +374,9 @@ fig.show()
 
 Indemnité de résidence de 1%
 
+:::: {.columns}
+
+::: {.column width="70%"}
 
 ```{python}
 #| code-fold: true
@@ -214,14 +386,14 @@ import plotly.graph_objects as go
 fig = go.Figure()
 
 ### IM 698
-fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Brest_prime, visible='legendonly', mode='lines+markers', name=f'ENSTA Brest (IM 698)', line=dict(color='#d95f02', dash='dash', shape='hv'), marker=dict(symbol='cross')))
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_ENSTA), y=12*Salaire_ENSTA_Brest_prime_2026, mode='lines+markers', name=f'ENSTA (IM 698)', line=dict(color='#d95f02', shape='hv'), marker=dict(symbol='cross')))
 
 
 
 
 ### 2025 figee
 
-fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Brest_2025, visible='legendonly', mode='lines+markers', name='MCF Brest 2025 figée', line=dict(color='#1f77b4', dash='dash', shape='hv'), marker=dict(symbol='cross')))
+fig.add_trace(go.Scatter(x=28+np.cumsum(years_mcf_default), y=12*Salaire_mcf_Brest_2025, mode='lines+markers', name='MCF 2025 figée', line=dict(color='#1f77b4', shape='hv'), marker=dict(symbol='cross')))
 
 
 
@@ -235,10 +407,31 @@ fig.add_hline(
 )
 
 ############## Plotly
-fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Catégories'), font=dict(size=12), width=1000, height=600)
+fig.update_layout(title='Évolution de la rémunération', xaxis_title='Âge', yaxis_title='Rémunération brute annuelle (€)', template='plotly_white', legend=dict(title='Légende'), font=dict(size=12), width=800, height=800)
 fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
 fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
 # mo.ui.plotly(fig)
+fig.update_yaxes(range=[0, 80000])
+
 fig.show()
 
 ```
+
+
+:::
+
+::: {.column width="29%"}
+##### Hypothèses
+
+* Générales
+    * Recrutement à 28 ans après 2 ans de postdoc
+    * 1% d'indémenité de résidence à Brest
+* MESR
+    * RIPEC 2025 (4800 euros)
+* ENSTA
+    * RIPEC 2026 (2800)
+
+:::
+
+::::
+
